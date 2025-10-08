@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Menu</title>
+  <meta name="description" content="Multi-language menu (EN / 日本語 / 中文)">
+  <style>
+    :root {
+      --bg: #0b0b0c;
+      --card: #121316;
+      --text: #f5f7fa;
+      --muted: #a9b0bb;
+      --accent: #3b82f6;
+      --accent-2: #22c55e;
+      --accent-3: #eab308;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(80% 80% at 50% 20%, #15161a 0%, var(--bg) 100%);
+      color: var(--text);
+    }
+    .container {
+      min-height: 100dvh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px clamp(16px, 4vw, 32px);
+    }
+    .brand { font-weight: 700; letter-spacing: .2px; }
+    .controls {
+      display: inline-flex; gap: 8px; align-items: center; flex-wrap: wrap;
+      background: color-mix(in srgb, var(--card) 80%, transparent);
+      padding: 6px; border-radius: 999px; border: 1px solid #20222a;
+    }
+    .btn {
+      -webkit-tap-highlight-color: transparent;
+      appearance: none; border: 0; cursor: pointer;
+      padding: 8px 14px; border-radius: 999px; font-weight: 600;
+      color: var(--text); background: transparent; position: relative; isolation: isolate;
+    }
+    .btn::before { /* hover/active halo */
+      content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1;
+      background: transparent; transition: background .2s ease, transform .2s ease;
+      transform: scale(.98);
+    }
+    .btn:hover::before { background: #ffffff14; transform: scale(1); }
+    .btn[data-active="true"] { color: white; }
+    .btn[data-active="true"]::before { background: #ffffff24; }
+
+    main { display: grid; place-items: center; padding: clamp(8px, 2vw, 24px); }
+
+    .frame {
+      width: min(100%, 1024px);
+      aspect-ratio: 3/4; /* common menu shape; adjust as needed */
+      position: relative; overflow: hidden;
+      border-radius: 18px; background: var(--card); border: 1px solid #20222a;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    .menu-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    /* Floating language control on image */
+    .floating {
+      position: absolute; top: 12px; right: 12px; z-index: 10;
+      display: flex; gap: 6px; align-items: center; backdrop-filter: blur(6px);
+      background: #0b0b0cb3; padding: 8px; border-radius: 999px; border: 1px solid #262931;
+      box-shadow: 0 4px 16px rgba(0,0,0,.25);
+    }
+    .pill { border-radius: 999px; padding: 6px 10px; background: #ffffff12; border: 1px solid #2a2e37; }
+
+    footer { color: var(--muted); font-size: 14px; text-align: center; padding: 16px; }
+
+    /* Responsive tweaks */
+    @media (max-width: 480px) {
+      .btn { padding: 8px 12px; font-weight: 600; }
+      .frame { border-radius: 14px; }
+      header { padding: 12px 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand" aria-label="site-title">Menu</div>
+      <div class="controls" role="tablist" aria-label="language selector (header)">
+        <button class="btn" data-lang="en" role="tab" aria-selected="false">EN</button>
+        <button class="btn" data-lang="ja" role="tab" aria-selected="false">日本語</button>
+        <button class="btn" data-lang="zh" role="tab" aria-selected="false">中文</button>
+      </div>
+    </header>
+
+    <main>
+      <figure class="frame" aria-live="polite">
+        <div class="floating" role="tablist" aria-label="language selector (floating)">
+          <button class="btn pill" data-lang="en" role="tab" aria-selected="false" title="English">EN</button>
+          <button class="btn pill" data-lang="ja" role="tab" aria-selected="false" title="日本語">日本語</button>
+          <button class="btn pill" data-lang="zh" role="tab" aria-selected="false" title="中文">中文</button>
+        </div>
+        <!-- Replace src with your default image. Files should be placed next to this index.html -->
+        <img id="menuImage" class="menu-img" src="menu-en.jpg" alt="Menu in English" loading="eager" />
+      </figure>
+    </main>
+
+    <footer>
+      © <span id="year"></span> Your Brand · Tap a language to switch the menu image
+    </footer>
+  </div>
+
+  <script>
+    // === Configuration: map language -> image filename & alt text ===
+    const MENU_IMAGES = {
+      en: { src: 'menu-en.jpg', alt: 'Menu in English' },
+      ja: { src: 'menu-ja.jpg', alt: 'メニュー（日本語）' },
+      zh: { src: 'menu-zh.jpg', alt: '中文菜单' }
+    };
+
+    // Optionally pre-load images for snappy switching
+    (function preload() {
+      Object.values(MENU_IMAGES).forEach(({src}) => { const i = new Image(); i.src = src; });
+    })();
+
+    const img = document.getElementById('menuImage');
+    const buttons = Array.from(document.querySelectorAll('button[data-lang]'));
+
+    function setActive(lang) {
+      const conf = MENU_IMAGES[lang] || MENU_IMAGES.en;
+      if (img.getAttribute('src') !== conf.src) img.setAttribute('src', conf.src);
+      img.setAttribute('alt', conf.alt);
+
+      buttons.forEach(btn => {
+        const active = btn.dataset.lang === lang;
+        btn.dataset.active = active ? 'true' : 'false';
+        btn.setAttribute('aria-selected', String(active));
+      });
+
+      // Persist choice
+      try { localStorage.setItem('menu_lang', lang); } catch (_) {}
+
+      // Update URL hash (? or #) without reloading (for shareable links)
+      const url = new URL(window.location);
+      url.searchParams.set('lang', lang);
+      history.replaceState({}, '', url);
+    }
+
+    // Read language from: 1) URL ?lang=xx 2) localStorage 3) browser language
+    function detectInitialLang() {
+      const url = new URL(window.location);
+      const fromUrl = url.searchParams.get('lang');
+      if (fromUrl && MENU_IMAGES[fromUrl]) return fromUrl;
+      try {
+        const saved = localStorage.getItem('menu_lang');
+        if (saved && MENU_IMAGES[saved]) return saved;
+      } catch (_) {}
+      const nav = (navigator.language || 'en').slice(0,2);
+      return (MENU_IMAGES[nav]) ? nav : 'en';
+    }
+
+    buttons.forEach(btn => btn.addEventListener('click', () => setActive(btn.dataset.lang)));
+
+    // Init
+    setActive(detectInitialLang());
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
