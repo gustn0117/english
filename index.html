@@ -8,31 +8,27 @@
   <meta name="theme-color" content="#fffaeb">
   <meta name="color-scheme" content="light">
   <style>
-    :root { --bg:#fffaeb; --text:#222; color-scheme: only light; }
+    :root { --bg:#fffaeb; --text:#222; --gap-desktop: 28px; --gap-mobile: 110px; color-scheme: only light; }
     *{ box-sizing:border-box; }
     html,body{ margin:0; height:100%; background:var(--bg)!important; background-image:none!important; color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto,Noto Sans,Helvetica,Arial; }
 
     main{ display:grid; place-items:center; min-height:100dvh; padding:12px; }
 
-    /* ▶ 이미지 컨테이너: 원본 비율 유지 (잘림 방지) */
-    .frame{ width:min(100%,1024px); position:relative; overflow:hidden; }
+    /* ▶ 이미지 컨테이너: 원본 비율 유지 (잘림 방지) + 상단 여백 변수화 */
+    .frame{ width:min(100%,1024px); position:relative; overflow:hidden; padding-top: var(--gap-desktop); }
     .menu-img{ width:100%; height:auto; display:block; }
 
-    /* ▶ 언어 버튼: 상단 중앙, 배경/테두리 없음 (옛 버전 스타일) */
-    .floating{ position:absolute; top: max(12px, env(safe-area-inset-top)); left:50%; transform:translateX(-50%); z-index:10; display:flex; gap:16px; align-items:center; justify-content:center; }
+    /* ▶ 언어 버튼: 상단 중앙, 배경/테두리 없음 (텍스트만) */
+    .floating{ position:absolute; top: max(12px, env(safe-area-inset-top)); left:50%; transform:translateX(-50%); z-index:10; display:flex; gap:18px; align-items:center; justify-content:center; }
     .btn{ appearance:none; background:transparent; border:none; padding:6px 2px; cursor:pointer; font-weight:700; font-size:clamp(14px, 4.2vw, 18px); color:#222; -webkit-tap-highlight-color:transparent; }
     .btn:focus{ outline:none; }
     .btn:hover{ text-decoration:underline; }
     .btn[data-active="true"]{ text-decoration:underline; }
 
-    /* ▶ 푸터 제거 요청 반영: footer 자체 없음 */
-      
-    /* ⬇️ 모바일에서 버튼과 이미지 사이 간격 확보 */
+    /* ⬇️ 모바일에서 버튼과 이미지 사이 간격을 넉넉히 */
     @media (max-width: 600px){
-      /* 이미지 위에 버튼이 겹치지 않도록 프레임 상단에 여백을 만든다 */
-      .frame{ padding-top: 56px; }
-      /* 버튼은 프레임의 맨 위쪽에 붙여서 시각적 간격을 유지 */
-      .floating{ top: 8px; gap: 18px; }
+      .frame{ padding-top: var(--gap-mobile); }
+      .floating{ top: 10px; gap: 20px; }
     }
   </style>
 </head>
@@ -44,7 +40,7 @@
         <button class="btn" data-lang="ja" role="tab" aria-selected="false">日本語</button>
         <button class="btn" data-lang="zh" role="tab" aria-selected="false">中文</button>
       </div>
-      <!-- alt 비움: 장식 이미지로 처리 -->
+      <!-- 장식 이미지: alt 비움 -->
       <img id="menuImage" class="menu-img" src="menu-en.png" alt="" loading="eager" />
     </figure>
   </main>
