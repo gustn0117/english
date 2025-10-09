@@ -10,44 +10,24 @@
   <style>
     :root {
       --bg: #fffaeb;
-      --text: #222222;
+      --text: #222;
       color-scheme: only light;
     }
     * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: var(--bg) !important; background-image: none !important; color: var(--text); font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Helvetica, Arial; }
 
-    html, body {
-      margin: 0;
-      height: 100%;
-      background: var(--bg) !important;
-      background-image: none !important;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Helvetica, Arial;
-      color: var(--text);
-    }
+    main { display: grid; place-items: center; min-height: 100dvh; padding: 12px; }
 
-    main { display: grid; place-items: center; min-height: 100dvh; }
-
-    .frame {
-      width: min(100%, 1024px);
-      aspect-ratio: 3/4;
-      position: relative; overflow: hidden;
-      border-radius: 18px; background: #fffdf5; border: 1px solid #e2d8b2;
-      box-shadow: 0 6px 16px rgba(0,0,0,.1);
-    }
+    /* 이미지 컨테이너: 테두리/박스/그림자 모두 제거 */
+    .frame { width: min(100%, 1024px); aspect-ratio: 3/4; position: relative; overflow: hidden; }
     .menu-img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-    .floating {
-      position: absolute; top: 12px; right: 12px; z-index: 10;
-      display: flex; gap: 6px;
-    }
-
-    .btn {
-      appearance: none; border: none; cursor: pointer;
-      padding: 6px 10px; border-radius: 999px; background: #ffffffb3;
-      font-weight: 600; color: var(--text);
-      transition: background .2s ease;
-    }
-    .btn:hover { background: #ffffffd0; }
-    .btn[data-active="true"] { background: #ffe28a; }
+    /* 언어 선택: 가운데 정렬, 배경/테두리 없는 텍스트 버튼 */
+    .floating { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; gap: 16px; align-items: center; justify-content: center; }
+    .btn { appearance: none; background: transparent; border: none; padding: 6px 2px; cursor: pointer; font-weight: 700; font-size: clamp(14px, 2.6vw, 18px); color: #222; text-shadow: 0 1px 0 rgba(255,255,255,.7); }
+    .btn:focus { outline: none; }
+    .btn:hover { text-decoration: underline; }
+    .btn[data-active="true"] { text-decoration: underline; }
 
     footer { text-align: center; color: #555; font-size: 14px; padding: 12px; }
   </style>
@@ -56,36 +36,57 @@
   <main>
     <figure class="frame" aria-live="polite">
       <div class="floating" role="tablist" aria-label="language selector">
-        <button class="btn" data-lang="en" role="tab" aria-selected="false" title="English">EN</button>
-        <button class="btn" data-lang="ja" role="tab" aria-selected="false" title="日本語">日本語</button>
-        <button class="btn" data-lang="zh" role="tab" aria-selected="false" title="中文">中文</button>
+        <button class="btn" data-lang="en" role="tab" aria-selected="false">EN</button>
+        <button class="btn" data-lang="ja" role="tab" aria-selected="false">日本語</button>
+        <button class="btn" data-lang="zh" role="tab" aria-selected="false">中文</button>
       </div>
-      <img id="menuImage" class="menu-img" src="menu-en.jpg" alt="Menu in English" loading="eager" />
+      <!-- alt를 비워서 시각적 장식으로 처리 (툴팁/텍스트 노출 제거) -->
+      <img id="menuImage" class="menu-img" src="menu-en.png" alt="" loading="eager" />
     </figure>
   </main>
 
   <footer>
-    © <span id="year"></span> Your Brand · Tap a language to switch the menu image
+    © <span id="year"></span> Your Brand
   </footer>
 
   <script>
-    const MENU_IMAGES = {
-      en: { src: 'menu-en.jpg', alt: 'Menu in English' },
-      ja: { src: 'menu-ja.jpg', alt: 'メニュー（日本語）' },
-      zh: { src: 'menu-zh.jpg', alt: '中文菜单' }
+    // 언어별 파일의 "베이스 이름"만 정의 (확장자 제외)
+    const MENU_BASE = {
+      en: 'menu-en',
+      ja: 'menu-ja',
+      zh: 'menu-zh'
     };
 
+    // PNG 우선, 실패하면 JPG로 폴백
+    function setSrcWithFallback(imgEl, base) {
+      // 폴백 상태 초기화
+      imgEl.dataset.fallback = 'png';
+      imgEl.onerror = function () {
+        if (imgEl.dataset.fallback === 'png') {
+          imgEl.dataset.fallback = 'jpg';
+          imgEl.src = base + '.jpg';
+        } else {
+          // jpg도 실패하면 에러 핸들러 해제
+          imgEl.onerror = null;
+        }
+      };
+      imgEl.src = base + '.png';
+    }
+
+    // 사전 로딩: png와 jpg 모두 시도
     (function preload() {
-      Object.values(MENU_IMAGES).forEach(({src}) => { const i = new Image(); i.src = src; });
+      Object.values(MENU_BASE).forEach((base) => {
+        const p = new Image(); p.src = base + '.png';
+        const j = new Image(); j.src = base + '.jpg';
+      });
     })();
 
     const img = document.getElementById('menuImage');
     const buttons = Array.from(document.querySelectorAll('button[data-lang]'));
 
     function setActive(lang) {
-      const conf = MENU_IMAGES[lang] || MENU_IMAGES.en;
-      if (img.getAttribute('src') !== conf.src) img.setAttribute('src', conf.src);
-      img.setAttribute('alt', conf.alt);
+      const base = MENU_BASE[lang] || MENU_BASE.en;
+      setSrcWithFallback(img, base);
 
       buttons.forEach(btn => {
         const active = btn.dataset.lang === lang;
@@ -102,13 +103,13 @@
     function detectInitialLang() {
       const url = new URL(window.location);
       const fromUrl = url.searchParams.get('lang');
-      if (fromUrl && MENU_IMAGES[fromUrl]) return fromUrl;
+      if (fromUrl && MENU_BASE[fromUrl]) return fromUrl;
       try {
         const saved = localStorage.getItem('menu_lang');
-        if (saved && MENU_IMAGES[saved]) return saved;
+        if (saved && MENU_BASE[saved]) return saved;
       } catch (_) {}
       const nav = (navigator.language || 'en').slice(0,2);
-      return (MENU_IMAGES[nav]) ? nav : 'en';
+      return (MENU_BASE[nav]) ? nav : 'en';
     }
 
     buttons.forEach(btn => btn.addEventListener('click', () => setActive(btn.dataset.lang)));
