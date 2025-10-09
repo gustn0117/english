@@ -8,36 +8,38 @@
   <meta name="theme-color" content="#fffaeb">
   <meta name="color-scheme" content="light">
   <style>
-    :root { --bg:#fffaeb; --text:#222; color-scheme: only light; }
+    :root { --bg:#fffaeb; --text:#222; --langbar-h: 48px; color-scheme: only light; }
     *{ box-sizing:border-box; }
     html,body{ margin:0; height:100%; background:var(--bg)!important; background-image:none!important; color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto,Noto Sans,Helvetica,Arial; }
 
-    /* 전체 화면 꽉 채우기 */
-    main{ display:grid; place-items:center; min-height:100dvh; padding:0; }
+    /* 레이아웃: 상단 언어바 + 아래에 이미지 */
+    main{ min-height:100dvh; display:flex; flex-direction:column; }
 
-    /* 프레임과 이미지: 화면 가득(가로/세로) 채우기 */
-    .frame{ width:100%; height:100dvh; position:relative; overflow:hidden; }
-    .menu-img{ width:100%; height:100%; object-fit:cover; display:block; }
-
-    /* 언어 버튼: 상단 중앙 + 이미지와 시각적 간격 확보 */
-    .floating{ position:absolute; top: calc(max(16px, env(safe-area-inset-top)) + 4px); left:50%; transform:translateX(-50%); z-index:10; display:flex; gap:20px; align-items:center; justify-content:center; }
-    .btn{ appearance:none; background:transparent; border:none; padding:6px 2px; cursor:pointer; font-weight:800; font-size:clamp(14px,4.2vw,18px); color:#222; -webkit-tap-highlight-color:transparent; text-shadow:0 1px 0 rgba(255,255,255,.75); }
-    .btn:focus{ outline:none; }
+    /* 상단 언어 선택 바: 가운데 정렬, 배경/테두리 없음, 여백 충분히 */
+    .langbar{ position:sticky; top:max(12px, env(safe-area-inset-top)); display:flex; justify-content:center; align-items:center; gap:24px; padding:8px 12px; margin-bottom:16px; z-index:10; background:transparent; }
+    .btn{ appearance:none; background:transparent; border:none; padding:8px 2px; cursor:pointer; font-weight:800; font-size:clamp(14px,4.2vw,18px); color:#222; -webkit-tap-highlight-color:transparent; text-shadow:0 1px 0 rgba(255,255,255,.75); }
     .btn:hover{ text-decoration:underline; }
     .btn[data-active="true"]{ text-decoration:underline; }
 
-    /* 푸터 제거 (요청사항) */
-    footer{ display:none; }
+    /* 이미지는 남은 화면을 꽉 채우되, 언어바 높이만큼 빼서 겹치지 않게 */
+    .frame{ flex:1 1 auto; height:calc(100dvh - var(--langbar-h) - 16px); width:100%; position:relative; overflow:hidden; }
+    .menu-img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+    @media (max-width:480px){
+      .langbar{ gap:18px; margin-bottom:18px; }
+      .btn{ padding:10px 4px; }
+    }
   </style>
 </head>
 <body>
   <main>
+    <div id="langbar" class="langbar" role="tablist" aria-label="language selector">
+      <button class="btn" data-lang="en" role="tab" aria-selected="false">EN</button>
+      <button class="btn" data-lang="ja" role="tab" aria-selected="false">日本語</button>
+      <button class="btn" data-lang="zh" role="tab" aria-selected="false">中文</button>
+    </div>
+
     <figure class="frame" aria-live="polite">
-      <div class="floating" role="tablist" aria-label="language selector">
-        <button class="btn" data-lang="en" role="tab" aria-selected="false">EN</button>
-        <button class="btn" data-lang="ja" role="tab" aria-selected="false">日本語</button>
-        <button class="btn" data-lang="zh" role="tab" aria-selected="false">中文</button>
-      </div>
       <img id="menuImage" class="menu-img" src="menu-en.png" alt="" loading="eager" />
     </figure>
   </main>
@@ -68,6 +70,12 @@
 
     const img = document.getElementById('menuImage');
     const buttons = Array.from(document.querySelectorAll('button[data-lang]'));
+    const langbar = document.getElementById('langbar');
+
+    function measureLangbar(){
+      const h = langbar.offsetHeight || 48;
+      document.documentElement.style.setProperty('--langbar-h', h + 'px');
+    }
 
     function setActive(lang){
       const base = MENU_BASE[lang] || MENU_BASE.en;
@@ -87,7 +95,10 @@
 
     buttons.forEach(btn=>btn.addEventListener('click',()=>setActive(btn.dataset.lang)));
 
+    // 초기 설정
     setActive(detectInitialLang());
+    measureLangbar();
+    window.addEventListener('resize', measureLangbar);
   </script>
 </body>
 </html>
