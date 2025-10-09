@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#fffaeb">
   <meta name="color-scheme" content="light">
   <style>
-    :root { --bg:#fffaeb; --text:#222; --gap-desktop: 28px; --gap-mobile: 110px; color-scheme: only light; }
+    :root { --bg:#fffaeb; --text:#222; --gap-desktop: 28px; --gap-mobile: 80px; color-scheme: only light; }
     *{ box-sizing:border-box; }
     html,body{ margin:0; height:100%; background:var(--bg)!important; background-image:none!important; color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto,Noto Sans,Helvetica,Arial; }
 
@@ -25,7 +25,7 @@
     .btn:hover{ text-decoration:underline; }
     .btn[data-active="true"]{ text-decoration:underline; }
 
-    /* ⬇️ 모바일에서 버튼과 이미지 사이 간격을 넉넉히 */
+    /* ⬇️ 모바일에서 버튼과 이미지 사이 간격을 줄임 */
     @media (max-width: 600px){
       .frame{ padding-top: var(--gap-mobile); }
       .floating{ top: 10px; gap: 20px; }
