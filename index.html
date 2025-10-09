@@ -5,41 +5,47 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Menu</title>
   <meta name="description" content="Multi-language menu (EN / 日本語 / 中文)">
+  <meta name="theme-color" content="#fffaeb">
+  <meta name="color-scheme" content="light">
   <style>
     :root {
-      --bg: #fffaeb; /* Updated background color */
+      --bg: #fffaeb;
       --card: #fff7db;
       --text: #222222;
       --muted: #444444;
       --accent: #3b82f6;
       --accent-2: #22c55e;
       --accent-3: #eab308;
+      /* 강제로 라이트 모드 */
+      color-scheme: only light;
     }
     * { box-sizing: border-box; }
+
     html, body { height: 100%; }
-    body {
+
+    /* 배경 '보장' 오버라이드 */
+    html, body {
       margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      background-color: var(--bg);
+      background: var(--bg) !important;
+      background-image: none !important;
       color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
     }
+
     .container {
       min-height: 100dvh;
       display: grid;
       grid-template-rows: auto 1fr auto;
     }
+
     header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 16px clamp(16px, 4vw, 32px);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; padding: 16px clamp(16px, 4vw, 32px);
     }
     .brand { font-weight: 700; letter-spacing: .2px; }
     .controls {
       display: inline-flex; gap: 8px; align-items: center; flex-wrap: wrap;
-      background: #fff2c2;
-      padding: 6px; border-radius: 999px; border: 1px solid #e6d19a;
+      background: #fff2c2; padding: 6px; border-radius: 999px; border: 1px solid #e6d19a;
     }
     .btn {
       -webkit-tap-highlight-color: transparent;
@@ -49,8 +55,7 @@
     }
     .btn::before {
       content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1;
-      background: transparent; transition: background .2s ease, transform .2s ease;
-      transform: scale(.98);
+      background: transparent; transition: background .2s ease, transform .2s ease; transform: scale(.98);
     }
     .btn:hover::before { background: #00000010; transform: scale(1); }
     .btn[data-active="true"] { color: black; }
@@ -118,6 +123,7 @@
       zh: { src: 'menu-zh.jpg', alt: '中文菜单' }
     };
 
+    // Preload
     (function preload() {
       Object.values(MENU_IMAGES).forEach(({src}) => { const i = new Image(); i.src = src; });
     })();
