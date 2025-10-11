@@ -4,74 +4,147 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Nabokjip | QR Menu</title>
+
+    <!-- 라이트 모드 강제 설정 -->
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#fffaea" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#fffaea"
+    />
+
     <style>
-      /* 폰트 */
+      /* 폰트 설정 */
       @font-face {
         font-family: "ChungjuKimsaeng";
-        src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2312-1@1.1/ChungjuKimSaengTTF.woff2") format("woff2");
-        font-weight: normal;
+        src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2312-1@1.1/ChungjuKimSaengTTF.woff2")
+          format("woff2");
         font-display: swap;
       }
 
       :root {
-        --primary: #fffaea;  /* 사용자가 지정한 배경 */
+        --primary: #fffaea;
         --accent: #332d2b;
+        color-scheme: only light; /* 다크모드 무시 */
       }
 
-      * { box-sizing: border-box; }
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
       body {
         margin: 0;
-        background: var(--primary);
-        color: var(--accent);
+        background: var(--primary) !important;
+        color: var(--accent) !important;
         font-family: ChungjuKimsaeng, ui-sans-serif, system-ui, -apple-system,
-          Segoe UI, Roboto, Apple SD Gothic Neo, Noto Sans JP, Noto Sans KR, sans-serif;
+          Segoe UI, Roboto, Apple SD Gothic Neo, Noto Sans JP, Noto Sans KR,
+          sans-serif;
       }
 
-      .wrap { max-width: 800px; margin: 0 auto; padding: 16px; }
+      @media (prefers-color-scheme: dark) {
+        html,
+        body {
+          background: var(--primary) !important;
+          color: var(--accent) !important;
+        }
+        img,
+        picture,
+        video,
+        canvas {
+          filter: none !important;
+          mix-blend-mode: normal !important;
+        }
+      }
+
+      .wrap {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 16px;
+      }
 
       header {
-        display: flex; align-items: center; justify-content: space-between;
-        gap: 12px; margin-bottom: clamp(10px, 4vw, 24px);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: clamp(10px, 4vw, 24px);
       }
 
-      h1 { font-size: 18px; margin: 0; }
+      .langpicker {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
 
-      .langpicker { display: flex; gap: 8px; align-items: center; }
-
-      /* ▶ 테두리/박스 제거된 버튼 (요청사항) */
+      /* 언어 선택 버튼 */
       .langbtn {
         font-family: ChungjuKimsaeng;
-        appearance: none; border: none; background: transparent;
-        color: var(--accent); font-weight: bold; font-size: 14px;
-        padding: 6px 6px; border-radius: 999px; cursor: pointer;
+        appearance: none;
+        border: none;
+        background: transparent;
+        color: var(--accent);
+        font-weight: bold;
+        font-size: 14px;
+        padding: 6px 6px;
+        border-radius: 999px;
+        cursor: pointer;
       }
-      .langbtn:hover, .langbtn.active { text-decoration: underline; }
 
-      /* ▶ 카드(컨테이너)도 테두리/박스 제거 */
-      .card { background: transparent; border: 0; border-radius: 0; }
+      .langbtn:hover,
+      .langbtn.active {
+        text-decoration: underline;
+      }
 
-      .panel { display: none; }
-      .panel[aria-hidden="false"] { display: block; }
+      /* 카드 및 이미지 */
+      .card {
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+      }
+
+      .panel {
+        display: none;
+      }
+
+      .panel[aria-hidden="false"] {
+        display: block;
+      }
 
       .imgbox img {
-        width: 100%; height: auto; display: block; border-radius: 0;
+        width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 0;
       }
 
-      /* 섹션 간 구분선이 필요하면 아래 주석 해제
-      .border-b { border-bottom: 1px solid rgba(0,0,0,.1); }
-      */
+      .logo {
+        width: auto;
+        min-width: 100px;
+        max-width: 20%;
+        display: block;
+      }
 
-      .logo { width: auto; min-width: 100px; max-width: 20%; display: block; }
-      .widthfull { width: 100%; }
+      .widthfull {
+        width: 100%;
+      }
 
-      /* ▶ 모바일에서 언어 버튼과 첫 이미지 사이 여백 확보 */
+      /* 모바일에서 버튼과 첫 이미지 사이 여백 확보 */
       @media (max-width: 600px) {
-        .card { margin-top: 14px; }         /* 버튼 아래 전체 여백 */
-        .imgbox:first-of-type { margin-top: 10px; } /* 첫 이미지 추가 여백 */
-        .langbtn { font-size: 15px; }       /* 터치 가독성 개선 */
+        .card {
+          margin-top: 14px;
+        }
+        .imgbox:first-of-type {
+          margin-top: 10px;
+        }
+        .langbtn {
+          font-size: 15px;
+        }
       }
     </style>
   </head>
+
   <body>
     <div class="wrap">
       <header class="widthfull">
@@ -87,30 +160,54 @@
         <!-- 영어 -->
         <div id="panel-en" class="panel" role="region" aria-hidden="false">
           <div class="imgbox">
-            <img src="./assets/menu_en_1.png" alt="" loading="lazy" decoding="async" />
+            <img
+              src="./assets/menu_en_1.png"
+              alt="Menu (English)"
+              loading="lazy"
+            />
           </div>
           <div class="imgbox">
-            <img src="./assets/menu_en_2.png" alt="" loading="lazy" decoding="async" />
+            <img
+              src="./assets/menu_en_2.png"
+              alt="Menu (English)"
+              loading="lazy"
+            />
           </div>
         </div>
 
         <!-- 일본어 -->
         <div id="panel-ja" class="panel" role="region" aria-hidden="true">
           <div class="imgbox">
-            <img src="./assets/menu_ja_1.png" alt="" loading="lazy" decoding="async" />
+            <img
+              src="./assets/menu_ja_1.png"
+              alt="Menu (日本語)"
+              loading="lazy"
+            />
           </div>
           <div class="imgbox">
-            <img src="./assets/menu_ja_2.png" alt="" loading="lazy" decoding="async" />
+            <img
+              src="./assets/menu_ja_2.png"
+              alt="Menu (日本語)"
+              loading="lazy"
+            />
           </div>
         </div>
 
         <!-- 중국어 -->
         <div id="panel-zh" class="panel" role="region" aria-hidden="true">
           <div class="imgbox">
-            <img src="./assets/menu_zh_1.png" alt="" loading="lazy" decoding="async" />
+            <img
+              src="./assets/menu_zh_1.png"
+              alt="Menu (中文)"
+              loading="lazy"
+            />
           </div>
           <div class="imgbox">
-            <img src="./assets/menu_zh_2.png" alt="" loading="lazy" decoding="async" />
+            <img
+              src="./assets/menu_zh_2.png"
+              alt="Menu (中文)"
+              loading="lazy"
+            />
           </div>
         </div>
       </section>
@@ -119,42 +216,37 @@
     <script>
       function detectInitialLang() {
         const qp = new URLSearchParams(location.search).get("lang");
-        if (qp && ["en","ja","zh"].includes(qp)) return qp;
+        if (qp && ["en", "ja", "zh"].includes(qp)) return qp;
 
-        // localStorage 기록 사용(있으면 우선)
-        try {
-          const saved = localStorage.getItem("nbk_lang");
-          if (saved && ["en","ja","zh"].includes(saved)) return saved;
-        } catch {}
-
-        const sys = (navigator.languages && navigator.languages[0]) || navigator.language || "";
+        const sys =
+          (navigator.languages && navigator.languages[0]) ||
+          navigator.language ||
+          "";
         if (sys.toLowerCase().startsWith("ja")) return "ja";
         if (sys.toLowerCase().startsWith("zh")) return "zh";
         return "en";
       }
 
       function showLang(lang) {
-        ["en","ja","zh"].forEach(code => {
+        ["en", "ja", "zh"].forEach((code) => {
           const panel = document.getElementById(`panel-${code}`);
           if (panel) panel.setAttribute("aria-hidden", code !== lang);
         });
 
-        document.querySelectorAll(".langbtn").forEach(b => {
+        document.querySelectorAll(".langbtn").forEach((b) => {
           b.classList.toggle("active", b.dataset.lang === lang);
         });
 
-        // URL 파라미터 & 저장
         const url = new URL(location.href);
         url.searchParams.set("lang", lang);
         history.replaceState(null, "", url.toString());
-        try { localStorage.setItem("nbk_lang", lang); } catch {}
       }
 
       document.addEventListener("DOMContentLoaded", () => {
         const initial = detectInitialLang();
         showLang(initial);
 
-        document.querySelectorAll(".langbtn").forEach(btn => {
+        document.querySelectorAll(".langbtn").forEach((btn) => {
           btn.addEventListener("click", () => showLang(btn.dataset.lang));
         });
       });
