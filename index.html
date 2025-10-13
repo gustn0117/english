@@ -9,19 +9,24 @@
     <meta name="color-scheme" content="light only" />
     <meta name="supported-color-schemes" content="light" />
     <meta name="theme-color" content="#fffaea" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#fffaea" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#fffaea"
+    />
 
     <style>
       @font-face {
         font-family: "ChungjuKimsaeng";
-        src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2312-1@1.1/ChungjuKimSaengTTF.woff2") format("woff2");
+        src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2312-1@1.1/ChungjuKimSaengTTF.woff2")
+          format("woff2");
         font-display: swap;
       }
 
       :root {
         --primary: #fffaea;
         --accent: #332d2b;
-        --page-bottom-gap: 8px; /* 기본 여백 (기기별 자동 조정됨) */
+        --page-bottom-gap: 8px;
         color-scheme: only light;
       }
 
@@ -29,7 +34,8 @@
         box-sizing: border-box;
       }
 
-      html, body {
+      html,
+      body {
         margin: 0;
         background: var(--primary) !important;
         color: var(--accent) !important;
@@ -39,7 +45,6 @@
         filter: none !important;
       }
 
-      /* ✅ 삼성 인터넷 강제 다크모드 완전 차단 */
       body::before {
         content: "";
         position: fixed;
@@ -52,7 +57,10 @@
         filter: none !important;
       }
 
-      img, picture, video, canvas {
+      img,
+      picture,
+      video,
+      canvas {
         filter: none !important;
         mix-blend-mode: normal !important;
         background: transparent !important;
@@ -119,7 +127,6 @@
         border-radius: 0;
       }
 
-      /* ✅ 이미지 사이 여백 */
       .imgbox:not(:last-child) {
         margin-bottom: 14px;
       }
@@ -141,6 +148,20 @@
         .langbtn {
           font-size: 15px;
         }
+      }
+
+      /* ✅ 삼성 브라우저 강제 다크모드 감지 시 자동 역보정 */
+      html.force-light,
+      html.force-light body {
+        filter: invert(1) hue-rotate(180deg) !important;
+      }
+      html.force-light img,
+      html.force-light picture,
+      html.force-light video,
+      html.force-light canvas {
+        filter: invert(1) hue-rotate(180deg) !important;
+        mix-blend-mode: normal !important;
+        background: transparent !important;
       }
     </style>
   </head>
@@ -190,21 +211,53 @@
     </div>
 
     <script>
-      // ✅ 기기별 화면 높이에 따라 하단 여백 자동 조정
+      // ✅ 기기별 하단 여백 자동 조정
       function tuneGap() {
         const vh = window.visualViewport ? visualViewport.height : innerHeight;
         let gap = 8;
-        if (vh < 700) gap = 4;     // 작은 화면
-        else if (vh > 900) gap = 12; // 긴 화면
-        document.documentElement.style.setProperty('--page-bottom-gap', gap + 'px');
+        if (vh < 700) gap = 4;
+        else if (vh > 900) gap = 12;
+        document.documentElement.style.setProperty("--page-bottom-gap", gap + "px");
       }
       tuneGap();
-      addEventListener('resize', tuneGap);
+      addEventListener("resize", tuneGap);
+      if (window.visualViewport) {
+        visualViewport.addEventListener("resize", tuneGap);
+      }
 
+      // ✅ 다크모드 강제 반전 감지 및 자동 복구
+      (function () {
+        var isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
+        function isDarkColor(rgbStr) {
+          var m = rgbStr.match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/i);
+          if (!m) return false;
+          var r = +m[1],
+            g = +m[2],
+            b = +m[3];
+          var luminance = (r + g + b) / 3;
+          return luminance < 120;
+        }
+        function maybeForceLight() {
+          var c1 = getComputedStyle(document.documentElement).backgroundColor;
+          var c2 = getComputedStyle(document.body).backgroundColor;
+          var dark = isDarkColor(c1) || isDarkColor(c2);
+          if (isSamsung && dark) {
+            document.documentElement.classList.add("force-light");
+          } else {
+            document.documentElement.classList.remove("force-light");
+          }
+        }
+        maybeForceLight();
+        window.addEventListener("resize", maybeForceLight);
+        if (window.visualViewport) {
+          visualViewport.addEventListener("resize", maybeForceLight);
+        }
+      })();
+
+      // ✅ 언어 전환
       function detectInitialLang() {
         const qp = new URLSearchParams(location.search).get("lang");
         if (qp && ["en", "ja", "zh"].includes(qp)) return qp;
-
         const sys =
           (navigator.languages && navigator.languages[0]) ||
           navigator.language ||
@@ -219,11 +272,9 @@
           const panel = document.getElementById(`panel-${code}`);
           if (panel) panel.setAttribute("aria-hidden", code !== lang);
         });
-
         document.querySelectorAll(".langbtn").forEach((b) => {
           b.classList.toggle("active", b.dataset.lang === lang);
         });
-
         const url = new URL(location.href);
         url.searchParams.set("lang", lang);
         history.replaceState(null, "", url.toString());
@@ -232,7 +283,6 @@
       document.addEventListener("DOMContentLoaded", () => {
         const initial = detectInitialLang();
         showLang(initial);
-
         document.querySelectorAll(".langbtn").forEach((btn) => {
           btn.addEventListener("click", () => showLang(btn.dataset.lang));
         });
