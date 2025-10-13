@@ -5,21 +5,16 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Nabokjip | QR Menu</title>
 
-    <!-- ✅ 라이트 모드 강제 -->
-    <meta name="color-scheme" content="light only" />
+    <!-- ✅ 라이트 모드 힌트 강화 -->
+    <meta name="color-scheme" content="light" />
     <meta name="supported-color-schemes" content="light" />
     <meta name="theme-color" content="#fffaea" />
-    <meta
-      name="theme-color"
-      media="(prefers-color-scheme: dark)"
-      content="#fffaea"
-    />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#fffaea" />
 
     <style>
       @font-face {
         font-family: "ChungjuKimsaeng";
-        src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2312-1@1.1/ChungjuKimSaengTTF.woff2")
-          format("woff2");
+        src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2312-1@1.1/ChungjuKimSaengTTF.woff2") format("woff2");
         font-display: swap;
       }
 
@@ -27,24 +22,22 @@
         --primary: #fffaea;
         --accent: #332d2b;
         --page-bottom-gap: 8px;
-        color-scheme: only light;
       }
 
-      * {
-        box-sizing: border-box;
-      }
+      * { box-sizing: border-box; }
 
-      html,
-      body {
+      html, body {
         margin: 0;
         background: var(--primary) !important;
         color: var(--accent) !important;
         font-family: ChungjuKimsaeng, ui-sans-serif, system-ui, -apple-system,
-          Segoe UI, Roboto, Apple SD Gothic Neo, Noto Sans JP, Noto Sans KR,
-          sans-serif;
+          Segoe UI, Roboto, Apple SD Gothic Neo, Noto Sans JP, Noto Sans KR, sans-serif;
+        /* ✅ 강제 다크 회피 힌트 (일부 브라우저가 존중) */
+        color-scheme: light !important;
         filter: none !important;
       }
 
+      /* 고정 배경 레이어 */
       body::before {
         content: "";
         position: fixed;
@@ -57,10 +50,7 @@
         filter: none !important;
       }
 
-      img,
-      picture,
-      video,
-      canvas {
+      img, picture, video, canvas {
         filter: none !important;
         mix-blend-mode: normal !important;
         background: transparent !important;
@@ -81,11 +71,7 @@
         margin-bottom: clamp(10px, 4vw, 24px);
       }
 
-      .langpicker {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-      }
+      .langpicker { display: flex; gap: 8px; align-items: center; }
 
       .langbtn {
         font-family: ChungjuKimsaeng;
@@ -100,68 +86,44 @@
         cursor: pointer;
         filter: none !important;
       }
+      .langbtn:hover, .langbtn.active { text-decoration: underline; }
 
-      .langbtn:hover,
-      .langbtn.active {
-        text-decoration: underline;
-      }
+      .card { background: transparent; border: 0; border-radius: 0; }
 
-      .card {
-        background: transparent;
-        border: 0;
-        border-radius: 0;
-      }
+      .panel { display: none; }
+      .panel[aria-hidden="false"] { display: block; }
 
-      .panel {
-        display: none;
-      }
+      .imgbox img { width: 100%; height: auto; display: block; border-radius: 0; }
+      .imgbox:not(:last-child) { margin-bottom: 14px; }
 
-      .panel[aria-hidden="false"] {
-        display: block;
-      }
-
-      .imgbox img {
-        width: 100%;
-        height: auto;
-        display: block;
-        border-radius: 0;
-      }
-
-      .imgbox:not(:last-child) {
-        margin-bottom: 14px;
-      }
-
-      .logo {
-        width: auto;
-        min-width: 100px;
-        max-width: 20%;
-        display: block;
-      }
+      .logo { width: auto; min-width: 100px; max-width: 20%; display: block; }
 
       @media (max-width: 600px) {
-        .card {
-          margin-top: 14px;
-        }
-        .imgbox:first-of-type {
-          margin-top: 10px;
-        }
-        .langbtn {
-          font-size: 15px;
-        }
+        .card { margin-top: 14px; }
+        .imgbox:first-of-type { margin-top: 10px; }
+        .langbtn { font-size: 15px; }
       }
 
-      /* ✅ 삼성 브라우저 강제 다크모드 감지 시 자동 역보정 */
-      html.force-light,
-      html.force-light body {
+      /* =========================================
+         ✅ 삼성 강제 다크 모드 역보정 (확실한 방식)
+         - html에 .force-light가 붙으면 전체 역반전
+         - 이미지/비디오는 다시 역반전해서 원색 복귀
+         ========================================= */
+      html.force-light, html.force-light body {
         filter: invert(1) hue-rotate(180deg) !important;
       }
       html.force-light img,
       html.force-light picture,
       html.force-light video,
       html.force-light canvas {
-        filter: invert(1) hue-rotate(180deg) !important;
+        filter: invert(1) hue-rotate(180deg) !important; /* 두 번 적용 → 원복 */
         mix-blend-mode: normal !important;
         background: transparent !important;
+      }
+
+      /* ✅ 시스템이 다크 선호일 때도 안전망으로 라이트 유지 */
+      @media (prefers-color-scheme: dark) {
+        html, body { background: #fffaea !important; color: var(--accent) !important; }
       }
     </style>
   </head>
@@ -221,47 +183,54 @@
       }
       tuneGap();
       addEventListener("resize", tuneGap);
-      if (window.visualViewport) {
-        visualViewport.addEventListener("resize", tuneGap);
-      }
+      if (window.visualViewport) visualViewport.addEventListener("resize", tuneGap);
 
-      // ✅ 다크모드 강제 반전 감지 및 자동 복구
+      // =========================================
+      // ✅ 삼성 브라우저 강제 다크 모드 확실한 감지 & 역보정
+      // - 계산된 배경색 검사 방식은 신뢰도가 낮아 제거
+      // - prefers-color-scheme: dark + Samsung UA 동시 만족 시 강제 역보정
+      // =========================================
       (function () {
         var isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
-        function isDarkColor(rgbStr) {
-          var m = rgbStr.match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/i);
-          if (!m) return false;
-          var r = +m[1],
-            g = +m[2],
-            b = +m[3];
-          var luminance = (r + g + b) / 3;
-          return luminance < 120;
-        }
-        function maybeForceLight() {
-          var c1 = getComputedStyle(document.documentElement).backgroundColor;
-          var c2 = getComputedStyle(document.body).backgroundColor;
-          var dark = isDarkColor(c1) || isDarkColor(c2);
-          if (isSamsung && dark) {
+        var prefersDark = window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches;
+
+        function applyForceLightIfNeeded() {
+          if (isSamsung && prefersDark) {
             document.documentElement.classList.add("force-light");
           } else {
             document.documentElement.classList.remove("force-light");
           }
         }
-        maybeForceLight();
-        window.addEventListener("resize", maybeForceLight);
-        if (window.visualViewport) {
-          visualViewport.addEventListener("resize", maybeForceLight);
+
+        applyForceLightIfNeeded();
+
+        // 환경 변화 대응
+        if (window.matchMedia) {
+          try {
+            matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
+              prefersDark = e.matches;
+              applyForceLightIfNeeded();
+            });
+          } catch (_) {
+            // 일부 구형 브라우저: addListener 폴백
+            var mq = matchMedia("(prefers-color-scheme: dark)");
+            mq.addListener(function (e) {
+              prefersDark = e.matches;
+              applyForceLightIfNeeded();
+            });
+          }
         }
+
+        window.addEventListener("pageshow", applyForceLightIfNeeded);
+        window.addEventListener("resize", applyForceLightIfNeeded);
+        if (window.visualViewport) visualViewport.addEventListener("resize", applyForceLightIfNeeded);
       })();
 
       // ✅ 언어 전환
       function detectInitialLang() {
         const qp = new URLSearchParams(location.search).get("lang");
         if (qp && ["en", "ja", "zh"].includes(qp)) return qp;
-        const sys =
-          (navigator.languages && navigator.languages[0]) ||
-          navigator.language ||
-          "";
+        const sys = (navigator.languages && navigator.languages[0]) || navigator.language || "";
         if (sys.toLowerCase().startsWith("ja")) return "ja";
         if (sys.toLowerCase().startsWith("zh")) return "zh";
         return "en";
